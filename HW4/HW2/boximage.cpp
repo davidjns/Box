@@ -89,7 +89,13 @@ void BoxImage::setFlickrReady()
 {
     flickrReady = true;
 
-
+    if(!waitingLists.empty())
+    {
+        QStringList urls = waitingLists.front();
+        waitingLists.pop_front();
+        qDebug << "UndoAddFlickr pushed from waitingList";
+        stack->push(new UndoAddFlickr(this, urls, )); //TODO: need to get and add the "oldImages" list to this and the other push(UndoAddFlickr) above
+    }
 }
 
 void BoxImage::addCollection()

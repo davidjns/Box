@@ -71,7 +71,7 @@ private:
     bool collectorReady;
     int waitingCalls;
     bool flickrReady;
-    std::list
+    std::list<QStringList> waitingLists;
 
     void fixBox();
     void resizeGrid();
