@@ -19,6 +19,17 @@ ImageLabel::ImageLabel(BoxImage *_box) :
     connect(this, SIGNAL(clicked()), this, SLOT(clickedSlot()));
 }
 
+ImageLabel::ImageLabel(BoxImage *_box, QString _path) :
+    QLabel(),
+    box(_box),
+    path(_path)
+{
+    setLineWidth(1);
+    setMidLineWidth(1);
+    setFrameStyle(QFrame::Panel | QFrame::Plain);
+    connect(this, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+}
+
 void ImageLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
     emit clicked();

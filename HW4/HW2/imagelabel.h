@@ -10,14 +10,18 @@ class ImageLabel : public QLabel
 public:
     explicit ImageLabel(QObject *parent = 0);
     ImageLabel(BoxImage *_box);
+    ImageLabel(BoxImage *_box, QString _path);
 
     void undoBorder();
+    QString getPath()
+        { return path; }
 
 protected:
     void mouseReleaseEvent(QMouseEvent *ev);
 
 private:
     BoxImage *box;
+    QString path;
 
 signals:
     void clicked();

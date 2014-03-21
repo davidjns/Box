@@ -10,6 +10,8 @@
 #include "undopaste.h"
 #include "flickrcollector.h"
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 #include <QClipboard>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -136,7 +138,7 @@ void BoxImage::replyFinished(QNetworkReply *reply)
     imageReader.setAutoDetectImageFormat(true);
     QImage image = imageReader.read();
 
-    ImageLabel *newImage = new ImageLabel(this);
+    ImageLabel *newImage = new ImageLabel(this, reply->url().path());
     QPixmap pix = QPixmap::fromImage(image);
     newImage->setPixmap(pix.scaledToWidth(150));
 
@@ -506,4 +508,30 @@ ImageLabel* BoxImage::getCopied()
 void BoxImage::setCopied(ImageLabel *image)
 {
     clipboard->setPixmap(*(image->pixmap()));
+}
+
+void BoxImage::save()
+{
+    ofstream saveFile;
+    saveFile.open("saveBox.txt");
+
+    int size = images.size();
+    for(int i = 0; i < size; i++)
+    {
+        ImageLabel *image = images.at(i);
+        QString path = image->getPath();
+        saveFile << path.toStdString() << endl;
+    }
+
+    saveFile.close();
+}
+
+void BoxImage::saveAs()
+{
+
+}
+
+void BoxImage::open()
+{
+
 }

@@ -43,7 +43,7 @@ void ImageBox::initializeActions()
 
     fileSave = new QAction(tr("&Save"), this);
     fileSave->setShortcuts(QKeySequence::Save);
-    connect(fileSave, SIGNAL(triggered()), this, SLOT(save()));
+    connect(fileSave, SIGNAL(triggered()), boxImage, SLOT(save()));
 
     fileSaveAs = new QAction(tr("&Save as"), this);
     fileSaveAs->setShortcut(QKeySequence("Ctrl+Shift+S"));

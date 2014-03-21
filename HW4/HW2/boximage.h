@@ -94,6 +94,10 @@ public slots:
     void redo()
         { stack->redo(); }
 
+    void save();
+    void saveAs();
+    void open();
+
     void addCollection();
     void addImage();
     void removeAll();
