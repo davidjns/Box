@@ -11,6 +11,7 @@ class QLabel;
 class ImageLabel;
 class ImageBox;
 class QClipboard;
+class QTimer;
 class FlickrCollector;
 
 #include <QGridLayout>
@@ -77,6 +78,11 @@ private:
     bool flickrReady;
     std::list<QStringList> waitingLists;
 
+    QTimer *timer;
+    int slideNum;
+
+    void resetSlide();
+
     std::vector<ImageLabel*> copyImages();
     void fixBox();
     void resizeGrid();
@@ -99,8 +105,11 @@ public slots:
 
     void addFlickr();
     void addFlickrReady();
-
     void replyFinished(QNetworkReply*);
+
+    void changeSlide();
+    void playSlide();
+    void stopSlide();
 };
 
 #endif // BOXIMAGE_H

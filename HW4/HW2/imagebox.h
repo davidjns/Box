@@ -29,6 +29,7 @@ public:
         { editPaste->setDisabled(false); }
 
     void showSelected(ImageLabel* image);
+    void updateSlide(ImageLabel *image);
 
 private:
     void initializeActions();
@@ -41,6 +42,7 @@ private:
     QMenu *fileMenu;
     QMenu *editMenu;
     QMenu *imagesMenu;
+    QMenu *slideMenu;
 
     QSplitter *splitter;
     QGridLayout *buttonGrid;
@@ -50,6 +52,7 @@ private:
 
     QGridLayout *previewGrid;
     QLabel *previewImage;
+    QLabel *slideImage;
 
     QToolButton *addCollectionButton;
     QToolButton *addImageButton;
@@ -71,6 +74,9 @@ private:
     QAction *imRemoveAll;
     QAction *imRemoveImage;
     QAction *imAddFlickr;
+
+    QAction *slidePlay;
+    QAction *slideStop;
 
 private slots:
     void quit()     { QApplication::quit(); }

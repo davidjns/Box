@@ -1,7 +1,6 @@
 #include "boximage.h"
 #include "imagebox.h"
 #include "imagelabel.h"
-//#include "flickrcollector.h"
 #include <QAction>
 #include <QGridLayout>
 #include <QMenu>
@@ -24,6 +23,7 @@ ImageBox::ImageBox()
     boxImage = new BoxImage(this, this);
 
     previewImage = new QLabel();
+    slideImage = new QLabel();
 
     initializeActions();
     initializeMenus();
@@ -97,6 +97,14 @@ void ImageBox::initializeActions()
     imAddFlickr = new QAction(tr("&Add Flickr Images"), this);
     imAddFlickr->setShortcut(QKeySequence("F5"));
     connect(imAddFlickr, SIGNAL(triggered()), boxImage, SLOT(addFlickr()));
+
+    slidePlay = new QAction(tr("&Play Slide Show"), this);
+    slidePlay->setShortcut(QKeySequence("P"));
+    connect(slidePlay, SIGNAL(triggered()), boxImage, SLOT(playSlide()));
+
+    slideStop = new QAction(tr("&Stop Slide Show"), this);
+    slideStop->setShortcut(QKeySequence("Shift+P"));
+    connect(slideStop, SIGNAL(triggered()), boxImage, SLOT(stopSlide()));
 }
 
 void ImageBox::initializeMenus()
@@ -124,6 +132,10 @@ void ImageBox::initializeMenus()
     imagesMenu->addAction(imRemoveAll);
     imagesMenu->addAction(imRemoveImage);
     imagesMenu->addAction(imAddFlickr);
+
+    slideMenu = menuBar()->addMenu(tr("&Slide Show"));
+    slideMenu->addAction(slidePlay);
+    slideMenu->addAction(slideStop);
 }
 
 void ImageBox::initializeButtonsGrid()
@@ -246,4 +258,19 @@ void ImageBox::showSelected(ImageLabel *image)
     previewImage->show();
 
     previewGrid->addWidget(previewImage, 1, 1);
+}
+
+void ImageBox::updateSlide(ImageLabel *image)
+{
+    if(image == NULL)
+    {
+        slideImage->hide();
+        return;
+    }
+
+    const QPixmap *pixmap = image->pixmap();
+    slideImage->setPixmap(pixmap->scaled(300, 300));
+    slideImage->show();
+
+    previewGrid->addWidget(slideImage, 2, 1);
 }

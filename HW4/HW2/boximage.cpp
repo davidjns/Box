@@ -20,6 +20,7 @@
 #include <QUrl>
 #include <QNetworkRequest>
 #include <QDesktopWidget>
+#include <QTimer>
 
 using namespace std;
 
@@ -49,6 +50,12 @@ BoxImage::BoxImage(QWidget *_parent, ImageBox *_parentBox) :
     waitingCalls = 0;
     flickrReady = true;
     //end
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(changeSlide()));
+    timer->start(2000);
+
+    slideNum = 0;
 
     numImages = 0;
 }
@@ -141,6 +148,8 @@ void BoxImage::replyFinished(QNetworkReply *reply)
         newImages.clear();
         numFinished = 0;
         setFlickrReady();
+
+        resetSlide();
     }
 }
 
@@ -181,6 +190,8 @@ void BoxImage::addCollection()
     }
 
     stack->push(new UndoAddImages(this, tempImages));
+
+    resetSlide();
 }
 
 void BoxImage::addImage()
@@ -208,6 +219,8 @@ void BoxImage::addImage()
 
     tempImages.push_back(newImage);
     stack->push(new UndoAddImages(this, tempImages));
+
+    resetSlide();
 }
 
 void BoxImage::removeAll()
@@ -239,7 +252,9 @@ void BoxImage::removeImage()
     }
 
     stack->push(new UndoRemoveImage(this, tempImages));
+
     parentBox->showSelected(NULL);
+    resetSlide();
 }
 
 void BoxImage::cut()
@@ -264,6 +279,8 @@ void BoxImage::cut()
     stack->push(new UndoCut(this, tempImages));
     parentBox->togglePaste(getCopied());
     parentBox->showSelected(NULL);
+    resetSlide();
+
     qDebug("cut called");
 }
 
@@ -297,6 +314,8 @@ void BoxImage::paste()
         qDebug("BoxImage paste: indexing error");
     }
     stack->push(new UndoPaste(this, tempImages, getCopied()));
+    resetSlide();
+
     qDebug("paste called");
 }
 
@@ -343,6 +362,7 @@ void BoxImage::fillGrid(std::vector<ImageLabel *> newImages)
     }
 
     fixBox();
+    resetSlide();
 }
 
 vector<ImageLabel*> BoxImage::copyImages()
@@ -370,6 +390,44 @@ void BoxImage::imageClick(ImageLabel *nextSelect)
 
     parentBox->showSelected(selected);
     parentBox->toggleCutCopy(selected);
+}
+
+void BoxImage::changeSlide()
+{
+    if(images.empty())
+    {
+        parentBox->updateSlide(NULL);
+        return;
+    }
+
+    if(slideNum >= (images.size() - 1))
+        slideNum = 0;
+
+    try
+    {
+        parentBox->updateSlide(images.at(slideNum));
+    }
+    catch(...)
+    {
+        qDebug() << "BoxImage changeSlide: indexing exception thrown";
+    }
+
+    slideNum++;
+}
+
+void BoxImage::playSlide()
+{
+    timer->start(2000);
+}
+
+void BoxImage::stopSlide()
+{
+    timer->stop();
+}
+
+void BoxImage::resetSlide()
+{
+    slideNum = 0;
 }
 
 void BoxImage::fixBox()
