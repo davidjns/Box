@@ -22,6 +22,8 @@ class ImageBox : public QMainWindow
 public:
     ImageBox();
     void toggleRemove(int num);
+    void togglePaste(ImageLabel *copiedImage);
+    void toggleCutCopy(ImageLabel *selectedImage);
 
     void togglePasteOn()
         { editPaste->setDisabled(false); }

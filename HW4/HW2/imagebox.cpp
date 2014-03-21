@@ -63,10 +63,12 @@ void ImageBox::initializeActions()
 
     editCut = new QAction(tr("&Cut"), this);
     editCut->setShortcuts(QKeySequence::Cut);
+    editCut->setDisabled(true);
     connect(editCut, SIGNAL(triggered()), boxImage, SLOT(cut()));
 
     editCopy = new QAction(tr("&Copy"), this);
     editCopy->setShortcuts(QKeySequence::Copy);
+    editCopy->setDisabled(true);
     connect(editCopy, SIGNAL(triggered()), boxImage, SLOT(copy()));
 
     editPaste = new QAction(tr("&Paste"), this);
@@ -130,7 +132,7 @@ void ImageBox::initializeButtonsGrid()
     previewGrid = new QGridLayout(splitter);
 
     previewGridWidget->setLayout(previewGrid->layout());
-    previewGridWidget->setMaximumWidth(325);
+    previewGridWidget->setMaximumWidth(325);   //don't think i need this guy
 
     splitter->insertWidget(0, previewGridWidget);
     splitter->setStretchFactor(0, 1);
@@ -197,6 +199,28 @@ void ImageBox::toggleRemove(int numImages)
 {
     imRemoveAll->setDisabled(numImages == 0);
     imRemoveImage->setDisabled(numImages == 0);
+}
+
+void ImageBox::togglePaste(ImageLabel *copiedImage)
+{
+    editPaste->setDisabled(copiedImage == NULL);
+}
+
+void ImageBox::toggleCutCopy(ImageLabel *selectedImage)
+{
+    editCut->setDisabled(selectedImage == NULL);
+    editCopy->setDisabled(selectedImage == NULL);
+
+//    if(image == NULL)
+//    {
+//        editCut->setDisabled(true);
+//        editCopy->setDisabled(true);
+//    }
+//    else
+//    {
+//        editCut->setDisabled(false);
+//        editCopy->setDisabled(false);
+//    }
 }
 
 void ImageBox::actionStub(QString call)

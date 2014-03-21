@@ -19,6 +19,7 @@
 #include <QLabel>
 #include <QUrl>
 #include <QNetworkRequest>
+#include <QDesktopWidget>
 
 using namespace std;
 
@@ -27,6 +28,8 @@ BoxImage::BoxImage(QWidget *_parent, ImageBox *_parentBox) :
     parent(_parent),
     parentBox(_parentBox)
 {
+    parent->resize(800, 600);
+
     setSpacing(4);
     setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
@@ -35,6 +38,10 @@ BoxImage::BoxImage(QWidget *_parent, ImageBox *_parentBox) :
     copied = NULL;
 
     clipboard = QApplication::clipboard();
+
+    nam = new QNetworkAccessManager(this);
+    connect(nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
+    numFinished = 0;
 
     collector = new FlickrCollector(parent);
     connect(collector, SIGNAL(ready()), this, SLOT(addFlickrReady()));
@@ -66,8 +73,17 @@ void BoxImage::addFlickrReady()
     if(flickrReady)
     {
         qDebug() << "UndoAddFlickr called";
-        stack->push(new UndoAddFlickr(this, urls));
+
+        int size = urls.size();
+        for(int i = 0; i < size; i++)
+        {
+            QString string = urls.front();
+            urls.pop_front();
+            QUrl url(string);
+            QNetworkReply *reply = nam->get(QNetworkRequest(url));
+        }
         flickrReady = false;
+        //stack->push(new UndoAddFlickr(this, urls, copyImages()));
     }
     else
     {
@@ -93,8 +109,39 @@ void BoxImage::setFlickrReady()
     {
         QStringList urls = waitingLists.front();
         waitingLists.pop_front();
-        qDebug << "UndoAddFlickr pushed from waitingList";
-        stack->push(new UndoAddFlickr(this, urls, )); //TODO: need to get and add the "oldImages" list to this and the other push(UndoAddFlickr) above
+        qDebug() << "UndoAddFlickr pushed from waitingList";
+
+        int size = urls.size();
+        for(int i = 0; i < size; i++)
+        {
+            QString string = urls.front();
+            urls.pop_front();
+            QUrl url(string);
+            QNetworkReply *reply = nam->get(QNetworkRequest(url));
+        }
+        flickrReady = false;
+    }
+}
+
+void BoxImage::replyFinished(QNetworkReply *reply)
+{
+    numFinished++;
+    QImageReader imageReader(reply);
+    imageReader.setAutoDetectImageFormat(true);
+    QImage image = imageReader.read();
+
+    ImageLabel *newImage = new ImageLabel(this);
+    QPixmap pix = QPixmap::fromImage(image);
+    newImage->setPixmap(pix.scaledToWidth(150));
+
+    newImages.push_back(newImage);
+
+    if(numFinished == 10)
+    {
+        stack->push(new UndoAddFlickr(this, copyImages(), newImages));
+        newImages.clear();
+        numFinished = 0;
+        setFlickrReady();
     }
 }
 
@@ -216,7 +263,7 @@ void BoxImage::cut()
     }
 
     stack->push(new UndoCut(this, tempImages));
-    parentBox->togglePasteOn();
+    parentBox->togglePaste(getCopied());
     parentBox->showSelected(NULL);
     qDebug("cut called");
 }
@@ -226,7 +273,7 @@ void BoxImage::copy()
     if(selected != NULL)
     {
         stack->push(new UndoCopy(this, selected));
-        parentBox->togglePasteOn();
+        parentBox->togglePaste(getCopied());
     }
 
     qDebug("copied set?");
@@ -295,6 +342,21 @@ void BoxImage::fillGrid(std::vector<ImageLabel *> newImages)
     {
         qDebug() << "BoxImage fillGrid: indexing exception thrown";
     }
+
+    fixBox();
+}
+
+vector<ImageLabel*> BoxImage::copyImages()
+{
+    vector<ImageLabel*> tempImages;
+
+    int num = (int)images.size();
+    for(int i = 0; i < num; i++)
+    {
+        tempImages.push_back(images.at(i));
+    }
+
+    return tempImages;
 }
 
 void BoxImage::imageClick(ImageLabel *nextSelect)
@@ -308,6 +370,7 @@ void BoxImage::imageClick(ImageLabel *nextSelect)
         selected = nextSelect;
 
     parentBox->showSelected(selected);
+    parentBox->toggleCutCopy(selected);
 }
 
 void BoxImage::fixBox()
@@ -317,14 +380,54 @@ void BoxImage::fixBox()
 
     if((int)images.size() == 0)
         resetSelected();
+
+    parentBox->toggleCutCopy(selected);
+    parentBox->togglePaste(getCopied());
+    //TODO: check out the togglePaste stuff, don't let it paste a null, bitch!
 }
 
 void BoxImage::resizeGrid()
 {
-    if(numImages <= 5)
-        parent->resize(175 + ((775 * numImages) / 5), 200);
+    QDesktopWidget desktop;
+    int maxHeight = desktop.size().height() - 50;
+    int maxWidth = desktop.size().width();
+    int currHeight = parent->size().height();
+    int currWidth = parent->size().width();
+
+    int newHeight = (numImages/5 + 1) * 155 + 30;
+    int newWidth;
+    if(numImages < 5)
+        newWidth = 375 + (numImages * 155);
     else
-        parent->resize(950, (numImages/5 + 1)*200);
+        newWidth = 375 + (5 * 155);
+
+    if(maxHeight < newHeight)
+    {
+        if(maxWidth < newWidth)
+            parent->resize(maxWidth, maxHeight);
+        else if(currWidth < newWidth)
+            parent->resize(newWidth, maxHeight);
+        else
+            parent->resize(currWidth, maxHeight);
+    }
+    else if(currHeight < newHeight)
+    {
+        if(maxWidth < newWidth)
+            parent->resize(maxWidth, newHeight);
+        else if(currWidth < newWidth)
+            parent->resize(newWidth, newHeight);
+        else
+            parent->resize(currWidth, newHeight);
+    }
+    else
+    {
+        if(maxWidth < newWidth)
+            parent->resize(maxWidth, currHeight);
+        if(currWidth < newWidth)
+            parent->resize(newWidth, currHeight);
+        else
+            parent->resize(currWidth, currHeight);
+    }
 }
 
 void BoxImage::badImage(QString fileName)

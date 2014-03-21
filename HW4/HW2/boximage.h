@@ -67,12 +67,17 @@ private:
 
     QClipboard *clipboard;
 
+    QNetworkAccessManager *nam;
+    int numFinished;
+    std::vector<ImageLabel*> newImages;
+
     FlickrCollector *collector;
     bool collectorReady;
     int waitingCalls;
     bool flickrReady;
     std::list<QStringList> waitingLists;
 
+    std::vector<ImageLabel*> copyImages();
     void fixBox();
     void resizeGrid();
     void badImage(QString fileName);
@@ -94,6 +99,8 @@ public slots:
 
     void addFlickr();
     void addFlickrReady();
+
+    void replyFinished(QNetworkReply*);
 };
 
 #endif // BOXIMAGE_H
