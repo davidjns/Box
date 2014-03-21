@@ -83,7 +83,6 @@ void BoxImage::addFlickrReady()
             QNetworkReply *reply = nam->get(QNetworkRequest(url));
         }
         flickrReady = false;
-        //stack->push(new UndoAddFlickr(this, urls, copyImages()));
     }
     else
     {
