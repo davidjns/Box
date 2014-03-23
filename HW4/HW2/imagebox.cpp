@@ -35,11 +35,11 @@ void ImageBox::initializeActions()
 {
     fileNew = new QAction(tr("&New"), this);
     fileNew->setShortcuts(QKeySequence::New);
-    connect(fileNew, SIGNAL(triggered()), this, SLOT(newFile()));
+    connect(fileNew, SIGNAL(triggered()), boxImage, SLOT(newFile()));
 
     fileOpen = new QAction(tr("&Open"), this);
     fileOpen->setShortcuts(QKeySequence::Open);
-    connect(fileOpen, SIGNAL(triggered()), this, SLOT(open()));
+    connect(fileOpen, SIGNAL(triggered()), boxImage, SLOT(open()));
 
     fileSave = new QAction(tr("&Save"), this);
     fileSave->setShortcuts(QKeySequence::Save);
@@ -47,11 +47,11 @@ void ImageBox::initializeActions()
 
     fileSaveAs = new QAction(tr("&Save as"), this);
     fileSaveAs->setShortcut(QKeySequence("Ctrl+Shift+S"));
-    connect(fileSaveAs, SIGNAL(triggered()), this, SLOT(saveAs()));
+    connect(fileSaveAs, SIGNAL(triggered()), boxImage, SLOT(saveAs()));
 
     fileQuit = new QAction(tr("&Quit"), this);
     fileQuit->setShortcut(QKeySequence("Ctrl+W"));
-    connect(fileQuit, SIGNAL(triggered()), this, SLOT(quit()));
+    connect(fileQuit, SIGNAL(triggered()), boxImage, SLOT(quit()));
 
     editUndo = new QAction(tr("&Undo"), this);
     editUndo->setShortcuts(QKeySequence::Undo);

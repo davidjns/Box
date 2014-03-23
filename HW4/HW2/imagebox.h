@@ -77,15 +77,6 @@ private:
 
     QAction *slidePlay;
     QAction *slideStop;
-
-private slots:
-    void quit()     { QApplication::quit(); }
-
-    //Unimplemented Menu Functions
-    void newFile()  { actionStub("New File"); }
-    void open()     { actionStub("Open File"); }
-    void save()     { actionStub("Save File"); }
-    void saveAs()   { actionStub("Save As File"); }
 };
 
 #endif // IMAGEBOX_H

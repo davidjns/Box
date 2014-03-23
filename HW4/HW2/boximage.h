@@ -83,6 +83,8 @@ private:
 
     void resetSlide();
 
+    QString saveFile;
+
     std::vector<ImageLabel*> copyImages();
     void fixBox();
     void resizeGrid();
@@ -94,9 +96,11 @@ public slots:
     void redo()
         { stack->redo(); }
 
+    void newFile();
     void save();
     void saveAs();
     void open();
+    void quit();
 
     void addCollection();
     void addImage();

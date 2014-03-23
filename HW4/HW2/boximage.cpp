@@ -23,6 +23,8 @@
 #include <QNetworkRequest>
 #include <QDesktopWidget>
 #include <QTimer>
+#include <QFile>
+#include <QDialogButtonBox>
 
 using namespace std;
 
@@ -138,7 +140,7 @@ void BoxImage::replyFinished(QNetworkReply *reply)
     imageReader.setAutoDetectImageFormat(true);
     QImage image = imageReader.read();
 
-    ImageLabel *newImage = new ImageLabel(this, reply->url().path());
+    ImageLabel *newImage = new ImageLabel(this);
     QPixmap pix = QPixmap::fromImage(image);
     newImage->setPixmap(pix.scaledToWidth(150));
 
@@ -343,7 +345,7 @@ void BoxImage::clearGrid()
     }
 }
 
-void BoxImage::fillGrid(std::vector<ImageLabel *> newImages)
+void BoxImage::fillGrid(vector<ImageLabel *> newImages)
 {
     ImageLabel *image;
     try
@@ -512,26 +514,92 @@ void BoxImage::setCopied(ImageLabel *image)
 
 void BoxImage::save()
 {
-    ofstream saveFile;
-    saveFile.open("saveBox.txt");
+    if(saveFile.isEmpty())
+        saveFile = QFileDialog::getSaveFileName(parentBox, "Choose Save File", QDir::homePath(), ".dat (*.dat)");
+
+    QFile file(saveFile);
+    file.open(QIODevice::WriteOnly);
+    QDataStream out(&file);
 
     int size = images.size();
+    out << size;
     for(int i = 0; i < size; i++)
     {
         ImageLabel *image = images.at(i);
-        QString path = image->getPath();
-        saveFile << path.toStdString() << endl;
+        out << image->pixmap();
     }
 
-    saveFile.close();
+    file.close();
+    qDebug() << "file saved";
 }
 
 void BoxImage::saveAs()
 {
+    qDebug() << "saveAs called";
 
+    saveFile = QFileDialog::getSaveFileName(parentBox, "Choose Save File", QDir::homePath(), ".dat (*.dat)");
+    save();
 }
 
 void BoxImage::open()
 {
+    vector<ImageLabel*> newImages;
+    QFile file(QFileDialog::getOpenFileName(parentBox, "Choose Load File", QDir::homePath(), ".dat (*.dat)"));
+    file.open(QIODevice::ReadOnly);
+    QDataStream in(&file);
 
+    int size;
+    in >> size;
+    qDebug() << "size = " << size;
+    for(int i = 0; i < size; i++)
+    {
+        ImageLabel* newImage = new ImageLabel(this);
+        QPixmap pix;
+        in >> pix;
+        newImage->setPixmap(pix);
+
+        newImages.push_back(newImage);
+    }
+
+    file.close();
+
+    clearGrid();
+    fillGrid(newImages);
+    qDebug() << "fileopened";
+}
+
+void BoxImage::newFile()
+{
+    QMessageBox *message = new QMessageBox(QMessageBox::Question, "", "Do you want to save before beginning a new session?");
+    message->setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    message->setDefaultButton(QMessageBox::Save);
+    int ret = message->exec();
+
+    if(ret == QMessageBox::Save)
+        save();
+    else if(ret == QMessageBox::Cancel)
+        return;
+
+    clearGrid();
+    parentBox->showSelected(NULL);
+    parentBox->updateSlide(NULL);
+    selected = NULL;
+    copied = NULL;
+    fileName.clear();
+    fixBox();
+}
+
+void BoxImage::quit()
+{
+    QMessageBox *message = new QMessageBox(QMessageBox::Question, "", "Do you want to save before closing?");
+    message->setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    message->setDefaultButton(QMessageBox::Save);
+    int ret = message->exec();
+
+    if(ret == QMessageBox::Save)
+        save();
+    else if(ret == QMessageBox::Cancel)
+        return;
+
+    QApplication::quit();
 }
