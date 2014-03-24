@@ -14,7 +14,6 @@ class QNetworkReply;
 class UndoAddFlickr : public QUndoCommand
 {
 public:
-    UndoAddFlickr(BoxImage *_box, QStringList _urls, std::vector<ImageLabel*> _oldImages);
     UndoAddFlickr(BoxImage *_box, std::vector<ImageLabel*> _oldImages, std::vector<ImageLabel*> _newImages);
 
     void undo();
@@ -28,12 +27,6 @@ private:
     std::vector<ImageLabel*> newImages;
 
     QNetworkAccessManager *nam;
-
-    int numFinished;
-    bool undone;
-
-public slots:
-    void replyFinished(QNetworkReply*);
 
 };
 

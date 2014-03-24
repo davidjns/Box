@@ -22,13 +22,12 @@ ImageBox::ImageBox()
 
     boxImage = new BoxImage(this, this);
 
-    previewImage = new QLabel();
-    slideImage = new QLabel();
-
     initializeActions();
     initializeMenus();
-    initializeButtonsGrid();
+    initializeDisplayGrid();
     initializeImagesGrid();
+
+    togglePaste(boxImage->getCopied());
 }
 
 void ImageBox::initializeActions()
@@ -138,58 +137,45 @@ void ImageBox::initializeMenus()
     slideMenu->addAction(slideStop);
 }
 
-void ImageBox::initializeButtonsGrid()
+void ImageBox::initializeDisplayGrid()
 {
     QWidget *previewGridWidget = new QWidget();
     previewGrid = new QGridLayout(splitter);
 
     previewGridWidget->setLayout(previewGrid->layout());
-    previewGridWidget->setMaximumWidth(325);   //don't think i need this guy
+    previewGridWidget->setMaximumWidth(300);   //don't think i need this guy
+
+    //START Trying to add labels
+    previewImage = new QLabel();
+    previewImage->setFixedSize(300, 300);
+    previewImage->setText("Nothing Selected");
+    previewImage->setAlignment(Qt::AlignCenter);
+    previewHeader = new QLabel("Selected Image");
+    previewHeader->setFixedHeight(16);
+    previewHeader->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+    QFont font;
+    font.setUnderline(true);
+    font.setBold(true);
+    font.setPixelSize(14);
+    previewHeader->setFont(font);
+
+    slideImage = new QLabel();
+    slideImage->setFixedSize(300, 150);
+    slideImage->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    slideHeader = new QLabel("Slide Show");
+    slideHeader->setFixedHeight(16);
+    slideHeader->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+    slideHeader->setFont(font);
+
+
+    previewGrid->addWidget(previewHeader, 1, 1);
+    previewGrid->addWidget(previewImage, 2, 1);
+    previewGrid->addWidget(slideHeader, 3, 1);
+    previewGrid->addWidget(slideImage, 4, 1);
+    //END
 
     splitter->insertWidget(0, previewGridWidget);
     splitter->setStretchFactor(0, 1);
-
-    //CODE BELOW FROM P3
-//    buttonGrid = new QGridLayout(splitter);
-//    buttonGrid->setSpacing(4);
-
-//    QWidget *w = new QWidget();
-//    w->setLayout(buttonGrid);
-
-//    addCollectionButton = new QToolButton(this);
-//    addCollectionButton->setDefaultAction(imAddCollection);
-//    addCollectionButton->setText("Add Collection");
-//    addCollectionButton->setFixedWidth(125);
-
-//    addImageButton = new QToolButton(this);
-//    addImageButton->setDefaultAction(imAddImage);
-//    addImageButton->setText("Add Image");
-//    addImageButton->setFixedWidth(125);
-
-//    removeAllButton = new QToolButton(this);
-//    removeAllButton->setDefaultAction(imRemoveAll);
-//    removeAllButton->setText("Remove All");
-//    removeAllButton->setFixedWidth(125);
-
-//    removeImageButton = new QToolButton(this);
-//    removeImageButton->setDefaultAction(imRemoveImage);
-//    removeImageButton->setText("Remove Image");
-//    removeImageButton->setFixedWidth(125);
-
-//    buttonGrid->addWidget(addCollectionButton);
-//    buttonGrid->addWidget(addImageButton);
-//    buttonGrid->addWidget(removeAllButton);
-//    buttonGrid->addWidget(removeImageButton);
-
-//    buttonGrid->setAlignment(Qt::AlignLeft);
-//    buttonGrid->setAlignment(Qt::AlignTop);
-//    leftBox->addWidget(w);
-
-//    QWidget *leftWidget = new QWidget();
-//    leftWidget->setLayout(leftBox);
-
-//    splitter->insertWidget(0, w);
-//    splitter->setStretchFactor(0, 0);
 }
 
 void ImageBox::initializeImagesGrid()
@@ -222,17 +208,6 @@ void ImageBox::toggleCutCopy(ImageLabel *selectedImage)
 {
     editCut->setDisabled(selectedImage == NULL);
     editCopy->setDisabled(selectedImage == NULL);
-
-//    if(image == NULL)
-//    {
-//        editCut->setDisabled(true);
-//        editCopy->setDisabled(true);
-//    }
-//    else
-//    {
-//        editCut->setDisabled(false);
-//        editCopy->setDisabled(false);
-//    }
 }
 
 void ImageBox::actionStub(QString call)
@@ -249,28 +224,27 @@ void ImageBox::showSelected(ImageLabel *image)
 {
     if(image == NULL)
     {
-        previewImage->hide();
+        QPixmap *blank = new QPixmap();
+        previewImage->setPixmap(*blank);
+        previewImage->setText("Nothing Selected");
         return;
     }
 
     const QPixmap *pixmap = image->pixmap();
     previewImage->setPixmap(pixmap->scaled(300, 300));
     previewImage->show();
-
-    previewGrid->addWidget(previewImage, 1, 1);
 }
 
 void ImageBox::updateSlide(ImageLabel *image)
 {
     if(image == NULL)
     {
-        slideImage->hide();
+        QPixmap *blank = new QPixmap();
+        slideImage->setPixmap(*blank);
         return;
     }
 
     const QPixmap *pixmap = image->pixmap();
-    slideImage->setPixmap(pixmap->scaled(300, 300));
+    slideImage->setPixmap(pixmap->scaled(150, 150));
     slideImage->show();
-
-    previewGrid->addWidget(slideImage, 2, 1);
 }

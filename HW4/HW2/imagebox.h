@@ -34,7 +34,7 @@ public:
 private:
     void initializeActions();
     void initializeMenus();
-    void initializeButtonsGrid();
+    void initializeDisplayGrid();
     void initializeImagesGrid();
 
     void actionStub(QString call);
@@ -52,7 +52,9 @@ private:
 
     QGridLayout *previewGrid;
     QLabel *previewImage;
+    QLabel *previewHeader;
     QLabel *slideImage;
+    QLabel *slideHeader;
 
     QToolButton *addCollectionButton;
     QToolButton *addImageButton;

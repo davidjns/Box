@@ -384,13 +384,20 @@ vector<ImageLabel*> BoxImage::copyImages()
 
 void BoxImage::imageClick(ImageLabel *nextSelect)
 {
+    qDebug() << "image click called";
     if(selected)
         selected->undoBorder();
 
     if(selected == nextSelect)
+    {
+        qDebug() << "image unselected";
         selected = NULL;
+    }
     else
+    {
+        qDebug() << "new image selected";
         selected = nextSelect;
+    }
 
     parentBox->showSelected(selected);
     parentBox->toggleCutCopy(selected);
@@ -444,7 +451,6 @@ void BoxImage::fixBox()
 
     parentBox->toggleCutCopy(selected);
     parentBox->togglePaste(getCopied());
-    //TODO: check out the togglePaste stuff, don't let it paste a null, bitch!
 }
 
 void BoxImage::resizeGrid()
