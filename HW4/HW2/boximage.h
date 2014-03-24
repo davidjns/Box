@@ -42,11 +42,8 @@ public:
         { selected = NULL; }
 
     ImageLabel* getCopied();
-        //{ return copied; }
     void setCopied(ImageLabel *image);
-        //{ copied = image; }
-    void resetCopied()
-        { copied = NULL; }
+    void resetCopied();
 
     void clearGrid();
     void fillGrid(std::vector<ImageLabel*> images);

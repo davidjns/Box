@@ -14,11 +14,11 @@ UndoPaste::UndoPaste(BoxImage *_box, vector<ImageLabel*> _images, ImageLabel *_c
 
 
     copiedImage = new ImageLabel(box);
-    const QPixmap *copiedPixmap = _copied->pixmap();
-    copiedImage->setPixmap(*copiedPixmap);
+    copiedImage->setPixmap(*(_copied->pixmap()));
 
     if(copiedImage == NULL)
         qDebug("null copy");
+
     ImageLabel *image;
     try
     {

@@ -8,8 +8,11 @@ UndoCut::UndoCut(BoxImage *_box, vector<ImageLabel*> _images) :
     box(_box),
     oldImages(_images)
 {
-    copiedImage = box->getSelected();
-    prevCopied = box->getCopied();
+    copiedImage = new ImageLabel(box);
+    copiedImage->setPixmap(*(box->getSelected()->pixmap()));
+
+    prevCopied = new ImageLabel(box);
+    prevCopied->setPixmap(*(box->getCopied())->pixmap());
 
     ImageLabel *image;
     try
@@ -19,7 +22,7 @@ UndoCut::UndoCut(BoxImage *_box, vector<ImageLabel*> _images) :
         {
             image = box->images.at(i);
 
-            if(image != copiedImage)
+            if(image != box->getSelected())
                 newImages.push_back(image);
         }
     }

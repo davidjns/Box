@@ -512,6 +512,11 @@ void BoxImage::setCopied(ImageLabel *image)
     clipboard->setPixmap(*(image->pixmap()));
 }
 
+void BoxImage::resetCopied()
+{
+
+}
+
 void BoxImage::save()
 {
     if(saveFile.isEmpty())

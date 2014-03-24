@@ -3,11 +3,12 @@
 #include "imagelabel.h"
 
 UndoCopy::UndoCopy(BoxImage *_box, ImageLabel *image) :
-    box(_box),
-    copiedImage(image)
+    box(_box)
 {
-    prevCopied = new ImageLabel(box);
-    prevCopied->setPixmap(*image->pixmap());
+    prevCopied = box->getCopied();
+
+    copiedImage = new ImageLabel(box);
+    copiedImage->setPixmap(*(image->pixmap()));
 }
 
 void UndoCopy::undo()
