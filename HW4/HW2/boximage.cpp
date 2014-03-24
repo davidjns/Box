@@ -515,7 +515,7 @@ void BoxImage::setCopied(ImageLabel *image)
 void BoxImage::save()
 {
     if(saveFile.isEmpty())
-        saveFile = QFileDialog::getSaveFileName(parentBox, "Choose Save File", QDir::homePath(), ".dat (*.dat)");
+        saveFile = QFileDialog::getSaveFileName(parentBox, "Choose Save File", QDir::homePath(), ".txt (*.txt)");
 
     QFile file(saveFile);
     file.open(QIODevice::WriteOnly);
@@ -526,7 +526,7 @@ void BoxImage::save()
     for(int i = 0; i < size; i++)
     {
         ImageLabel *image = images.at(i);
-        out << image->pixmap();
+        out << *(image->pixmap());
     }
 
     file.close();
@@ -537,20 +537,22 @@ void BoxImage::saveAs()
 {
     qDebug() << "saveAs called";
 
-    saveFile = QFileDialog::getSaveFileName(parentBox, "Choose Save File", QDir::homePath(), ".dat (*.dat)");
+    saveFile = QFileDialog::getSaveFileName(parentBox, "Choose Save File", QDir::homePath(), ".txt (*.txt)");
     save();
 }
 
 void BoxImage::open()
 {
     vector<ImageLabel*> newImages;
-    QFile file(QFileDialog::getOpenFileName(parentBox, "Choose Load File", QDir::homePath(), ".dat (*.dat)"));
+
+    QString openFile = QFileDialog::getOpenFileName(parentBox, "Choose Load File", QDir::homePath(), ".txt (*.txt)");
+    QFile file(openFile);
     file.open(QIODevice::ReadOnly);
     QDataStream in(&file);
 
     int size;
     in >> size;
-    qDebug() << "size = " << size;
+    qDebug() << "num pictures in file = " << size;
     for(int i = 0; i < size; i++)
     {
         ImageLabel* newImage = new ImageLabel(this);
@@ -565,7 +567,7 @@ void BoxImage::open()
 
     clearGrid();
     fillGrid(newImages);
-    qDebug() << "fileopened";
+    qDebug() << "file opened";
 }
 
 void BoxImage::newFile()
@@ -585,7 +587,7 @@ void BoxImage::newFile()
     parentBox->updateSlide(NULL);
     selected = NULL;
     copied = NULL;
-    fileName.clear();
+    saveFile.clear();
     fixBox();
 }
 

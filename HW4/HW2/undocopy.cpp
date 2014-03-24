@@ -6,7 +6,8 @@ UndoCopy::UndoCopy(BoxImage *_box, ImageLabel *image) :
     box(_box),
     copiedImage(image)
 {
-    prevCopied = box->getCopied();
+    prevCopied = new ImageLabel(box);
+    prevCopied->setPixmap(*image->pixmap());
 }
 
 void UndoCopy::undo()
