@@ -241,6 +241,7 @@ void BoxImage::removeAll()
 
     stack->push(new UndoRemoveImages(this, tempImages));
     parentBox->showSelected(NULL);
+    parentBox->updateSlide(NULL);
 }
 
 void BoxImage::removeImage()
@@ -525,6 +526,8 @@ void BoxImage::resetCopied()
 
 void BoxImage::save()
 {
+    qDebug() << "Save called";
+
     if(saveFile.isEmpty())
         saveFile = QFileDialog::getSaveFileName(parentBox, "Choose Save File", QDir::homePath(), ".txt (*.txt)");
 
@@ -534,6 +537,14 @@ void BoxImage::save()
 
     int size = images.size();
     out << size;
+
+    int selectedPos = find(images.begin(), images.end(), selected) - images.begin();
+    out << selectedPos;
+    qDebug() << "selected Pos = " << selectedPos;
+
+    out << timer->isActive();
+    out << slideNum;
+
     for(int i = 0; i < size; i++)
     {
         ImageLabel *image = images.at(i);
@@ -563,13 +574,34 @@ void BoxImage::open()
 
     int size;
     in >> size;
-    qDebug() << "num pictures in file = " << size;
+
+    int selectedPos;
+    in >> selectedPos;
+
+    bool timerActive;
+    in >> timerActive;
+    if(timerActive)
+        playSlide();
+    else
+        stopSlide();
+
+    int savedSlideNum;
+    in >> savedSlideNum;
+
     for(int i = 0; i < size; i++)
     {
         ImageLabel* newImage = new ImageLabel(this);
         QPixmap pix;
         in >> pix;
         newImage->setPixmap(pix);
+
+        if(i == selectedPos)
+        {
+            selected = newImage;
+            parentBox->showSelected(selected);
+            newImage->setLineWidth(3);
+            newImage->setMidLineWidth(3);
+        }
 
         newImages.push_back(newImage);
     }
@@ -578,6 +610,8 @@ void BoxImage::open()
 
     clearGrid();
     fillGrid(newImages);
+    slideNum = savedSlideNum;
+    changeSlide();
     qDebug() << "file opened";
 }
 
